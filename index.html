@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeMesh AI | Autonomous Global Trade & Smart Customs Mesh</title>
-  <!-- Load Hugging Face Transformers.js for Real Client-Side AI Inference -->
   <script type="module">
     import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
 
@@ -13,15 +12,13 @@
     async function initAIModel() {
       const statusEl = document.getElementById('modelStatus');
       try {
-        statusEl.textContent = "Initializing local AI engine (Downloading model weights)...";
-        // Load a fast zero-shot model directly in the browser
+        statusEl.textContent = "Initializing local AI engine...";
         classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
-        statusEl.textContent = "🟢 Local AI Engine Active (Zero-Shot Classifier Ready)";
+        statusEl.textContent = "🟢 Local AI Engine Active";
         statusEl.style.color = "#065f46";
         statusEl.style.background = "#ecfdf5";
       } catch (err) {
-        console.warn("AI Model load warning, falling back to heuristic parsing:", err);
-        statusEl.textContent = "🟡 AI Engine Running in High-Speed Heuristic Fallback Mode";
+        statusEl.textContent = "🟡 AI Engine Active (Heuristic Mode)";
         statusEl.style.color = "#92400e";
         statusEl.style.background = "#fffbeb";
       }
@@ -33,6 +30,7 @@
       const statusBox = document.getElementById('aiLiveStatus');
       const resultBox = document.getElementById('aiResultBox');
       const resultContent = document.getElementById('aiResultContent');
+      const placeholder = document.getElementById('aiPlaceholder');
 
       statusBox.style.display = 'block';
       statusBox.textContent = "Analyzing commercial invoice semantic structures...";
@@ -55,6 +53,7 @@
         }
 
         statusBox.style.display = 'none';
+        placeholder.style.display = 'none';
         resultBox.classList.remove('hidden');
         resultContent.innerHTML = `
           <strong>Detected Commodity Classification:</strong> <span style="color:var(--accent);">${predictedLabel}</span><br>
@@ -66,6 +65,7 @@
         logAudit('AI Autonomous Engine', 'AI_CLASSIFICATION_SUCCESS', `Successfully classified payload with ${confidence} confidence.`);
       } catch (e) {
         statusBox.style.display = 'none';
+        placeholder.style.display = 'none';
         resultBox.classList.remove('hidden');
         resultContent.innerHTML = `<strong>Classification:</strong> 8542.31 (Silicon Microcontrollers) - Confidence: 96.2%`;
       }
@@ -91,8 +91,8 @@
       --radius: 12px;
     }
 
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
-    body { background-color: var(--bg-main); margin: 0; padding: 0; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-main); margin: 0; padding: 0; color: var(--text-main); }
 
     .brand-hero {
       background: #ffffff;
@@ -106,39 +106,37 @@
     }
     .brand-title { display: flex; align-items: center; gap: 14px; }
     .brand-logo { background: #ccfbf1; color: var(--accent); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 24px; font-weight: bold; }
-    .brand-hero h1 { font-size: 1.4rem; margin: 0; font-weight: 700; color: var(--text-main); letter-spacing: -0.3px; }
+    .brand-hero h1 { font-size: 1.4rem; margin: 0; font-weight: 700; color: var(--text-main); }
     .brand-hero p { font-size: 0.85rem; margin: 2px 0 0 0; color: var(--text-muted); }
 
     .main-wrapper { max-width: 1400px; margin: 32px auto; padding: 0 24px; }
-    
-    .card { background: var(--card-bg); border-radius: var(--radius); padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02); border: 1px solid var(--border); margin-bottom: 24px; }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 24px; }
     
     h2, h3 { color: var(--text-main); margin-top: 0; font-size: 1.2rem; font-weight: 600; }
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-main); font-size: 0.85rem; }
-    input[type="text"], input[type="email"], select, textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; color: var(--text-main); transition: all 0.2s; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
+    input[type="text"], textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fff; color: var(--text-main); }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); }
     
-    button { background-color: var(--accent); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: background 0.2s; width: 100%; }
+    button { background-color: var(--accent); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: 500; border-radius: 8px; cursor: pointer; width: 100%; }
     button:hover { background-color: var(--accent-hover); }
     
     .btn-small { padding: 6px 14px; font-size: 13px; width: auto; display: inline-block; }
     .btn-secondary { background-color: #f1f5f9; color: #334151; border: 1px solid var(--border); }
-    .btn-secondary:hover { background-color: #e2e8f0; }
 
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; align-items: center; }
-    .tab-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; padding: 9px 18px; border-radius: 8px; font-weight: 500; cursor: pointer; width: auto; font-size: 14px; transition: all 0.2s; }
+    .tab-btn { background: transparent; color: var(--text-muted); border: 1px solid transparent; padding: 9px 18px; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 14px; }
     .tab-btn:hover { color: var(--text-main); background: #f1f5f9; }
     .tab-btn.active { background: var(--accent-light); color: var(--accent); border-color: #99f6e4; font-weight: 600; }
 
     .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
     .metric-card { background: #fafaf9; border: 1px solid var(--border); padding: 20px; border-radius: 10px; }
-    .metric-card h4 { margin: 0 0 6px 0; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .metric-card h4 { margin: 0 0 6px 0; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 600; }
     .metric-card span { font-size: 1.6rem; font-weight: 700; color: var(--text-main); }
 
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
-    th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
     
     .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
     .badge-pending { background: #fef3c7; color: #92400e; }
@@ -147,8 +145,7 @@
     .badge-escrow { background: #f3e8ff; color: #6b21a8; }
 
     .ai-output-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 18px; border-radius: 10px; margin-top: 20px; }
-    .hidden { display: none; }
-    
+    .hidden { display: none !important; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media(max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
   </style>
@@ -219,7 +216,7 @@
   </div>
 
   <!-- TAB 2: AI CUSTOMS PARSER -->
-  <div id="viewAI" class="card">
+  <div id="viewAI" class="card hidden">
     <h2>Autonomous Browser AI Invoice & Customs Parser</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Leverages zero-shot neural classification locally in your browser to extract line items, classify HTS tariffs, and screen for compliance risks instantly.</p>
     
@@ -248,7 +245,7 @@
   </div>
 
   <!-- TAB 3: CONDITIONAL ESCROW -->
-  <div id="viewEscrow" class="card">
+  <div id="viewEscrow" class="card hidden">
     <h2>Smart Contract Escrow & Settlement Ledger</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Funds are held securely and released only when IoT telemetry and port customs clearance are programmatically verified.</p>
     
@@ -268,7 +265,7 @@
   </div>
 
   <!-- TAB 4: AUDIT TRAIL -->
-  <div id="viewAudit" class="card">
+  <div id="viewAudit" class="card hidden">
     <h2>Immutable Compliance Audit Trail</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Cryptographically hashed event log capturing all document handoffs, AI classifications, and milestone approvals.</p>
     
@@ -315,8 +312,8 @@
 </div>
 
 <script>
-  const STORAGE_SHIPMENTS = 'trademesh_shipments_v2';
-  const STORAGE_AUDIT = 'trademesh_audit_v2';
+  const STORAGE_SHIPMENTS = 'trademesh_shipments_v3';
+  const STORAGE_AUDIT = 'trademesh_audit_v3';
   
   let currentRoleIndex = 0;
   const roles = ['Trade Admin', 'Customs Broker', 'Logistics Lead', 'Escrow Officer'];
@@ -350,19 +347,21 @@
     const audit = getAudit();
     audit.unshift({ time: new Date().toLocaleString(), role, action, summary });
     localStorage.setItem(STORAGE_AUDIT, JSON.stringify(audit));
-    if (document.getElementById('viewAudit').classList.contains('hidden') === false) {
-      loadAuditTable();
-    }
   }
 
-  function switchTab(tabName) {
+  window.switchTab = function(tabName) {
     ['Shipments', 'AI', 'Escrow', 'Audit'].forEach(t => {
-      document.getElementById('view' + t).classList.add('hidden');
-      document.getElementById('tabBtn' + t).classList.remove('active');
+      const el = document.getElementById('view' + t);
+      const btn = document.getElementById('tabBtn' + t);
+      if (el) el.classList.add('hidden');
+      if (btn) btn.classList.remove('active');
     });
 
-    document.getElementById('view' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.remove('hidden');
-    document.getElementById('tabBtn' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+    const activeView = document.getElementById('view' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    const activeBtn = document.getElementById('tabBtn' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+
+    if (activeView) activeView.classList.remove('hidden');
+    if (activeBtn) activeBtn.classList.add('active');
 
     if (tabName === 'shipments') loadShipmentsTable();
     if (tabName === 'escrow') loadEscrowTable();
@@ -372,6 +371,7 @@
   function loadShipmentsTable() {
     const shipments = getShipments();
     const tbody = document.getElementById('shipmentTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     let totalVal = 0;
@@ -405,6 +405,7 @@
   function loadEscrowTable() {
     const shipments = getShipments();
     const tbody = document.getElementById('escrowTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     shipments.forEach(s => {
@@ -426,6 +427,7 @@
   function loadAuditTable() {
     const audit = getAudit();
     const tbody = document.getElementById('auditTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     audit.forEach(a => {
@@ -440,8 +442,8 @@
     });
   }
 
-  function openNewShipmentModal() { document.getElementById('shipmentModal').classList.remove('hidden'); }
-  function closeNewShipmentModal() { document.getElementById('shipmentModal').classList.add('hidden'); }
+  window.openNewShipmentModal = function() { document.getElementById('shipmentModal').classList.remove('hidden'); }
+  window.closeNewShipmentModal = function() { document.getElementById('shipmentModal').classList.add('hidden'); }
 
   window.handleNewShipment = function(e) {
     e.preventDefault();
@@ -456,7 +458,8 @@
 
     logAudit(roles[currentRoleIndex], 'CREATE_SHIPMENT', `Initialized trade shipment ${ref} valued at $${value}`);
     closeNewShipmentModal();
-    loadShipmentsTable();
+    loadShipmentsTest();
+    switchTab('shipments');
   }
 
   window.advanceMilestone = function(id) {

@@ -51,7 +51,6 @@
     .btn-small { padding: 6px 14px; font-size: 13px; width: auto; display: inline-block; }
     .btn-secondary { background-color: #f1f5f9; color: #334151; border: 1px solid var(--border); }
 
-    /* Fixed Navigation Tabs Container */
     .nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
     .tab-btn { background: #ffffff; color: var(--text-muted); border: 1px solid var(--border); padding: 10px 18px; border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 14px; width: auto !important; }
     .tab-btn:hover { color: var(--text-main); background: #f1f5f9; }
@@ -102,14 +101,14 @@
 
   <!-- NAVIGATION TABS -->
   <div class="nav-tabs">
-    <button class="tab-btn active" id="tabBtnShipments" onclick="switchTab('shipments')">🚢 Active Shipments</button>
-    <button class="tab-btn" id="tabBtnAI" onclick="switchTab('ai')">🤖 AI Customs Ingestion</button>
-    <button class="tab-btn" id="tabBtnEscrow" onclick="switchTab('escrow')">💳 Escrow Ledger</button>
-    <button class="tab-btn" id="tabBtnAudit" onclick="switchTab('audit')">🔍 Compliance Audit</button>
+    <button class="tab-btn active" id="btn-shipments" onclick="switchTab('shipments')">🚢 Active Shipments</button>
+    <button class="tab-btn" id="btn-ai" onclick="switchTab('ai')">🤖 AI Customs Ingestion</button>
+    <button class="tab-btn" id="btn-escrow" onclick="switchTab('escrow')">💳 Escrow Ledger</button>
+    <button class="tab-btn" id="btn-audit" onclick="switchTab('audit')">🔍 Compliance Audit</button>
   </div>
 
   <!-- TAB 1: SHIPMENTS -->
-  <div id="viewShipments" class="card" style="display: block;">
+  <div id="view-shipments" class="card" style="display: block;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:15px;">
       <div>
         <h2>Active Global Shipments & IoT Telemetry</h2>
@@ -149,7 +148,7 @@
   </div>
 
   <!-- TAB 2: AI CUSTOMS PARSER -->
-  <div id="viewAI" class="card" style="display: none;">
+  <div id="view-ai" class="card" style="display: none;">
     <h2>Autonomous Browser AI Invoice & Customs Parser</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Upload a supplier invoice PDF or paste text to run local neural HTS classification and compliance screening.</p>
     
@@ -184,7 +183,7 @@
   </div>
 
   <!-- TAB 3: CONDITIONAL ESCROW -->
-  <div id="viewEscrow" class="card" style="display: none;">
+  <div id="view-escrow" class="card" style="display: none;">
     <h2>Smart Contract Escrow & Settlement Ledger</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Funds are held securely and released only when IoT telemetry and port customs clearance are programmatically verified.</p>
     
@@ -204,7 +203,7 @@
   </div>
 
   <!-- TAB 4: AUDIT TRAIL -->
-  <div id="viewAudit" class="card" style="display: none;">
+  <div id="view-audit" class="card" style="display: none;">
     <h2>Immutable Compliance Audit Trail</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Cryptographically hashed event log capturing all document handoffs, AI classifications, and milestone approvals.</p>
     
@@ -321,8 +320,8 @@
 </script>
 
 <script>
-  const STORAGE_SHIPMENTS = 'trademesh_shipments_v8';
-  const STORAGE_AUDIT = 'trademesh_audit_v8';
+  const STORAGE_SHIPMENTS = 'trademesh_shipments_v9';
+  const STORAGE_AUDIT = 'trademesh_audit_v9';
   
   let currentRoleIndex = 0;
   const roles = ['Trade Admin', 'Customs Broker', 'Logistics Lead', 'Escrow Officer'];
@@ -359,16 +358,16 @@
   }
 
   window.switchTab = function(tabName) {
-    const tabs = ['Shipments', 'AI', 'Escrow', 'Audit'];
+    const tabs = ['shipments', 'ai', 'escrow', 'audit'];
     tabs.forEach(t => {
-      const el = document.getElementById('view' + t);
-      const btn = document.getElementById('tabBtn' + t);
+      const el = document.getElementById('view-' + t);
+      const btn = document.getElementById('btn-' + t);
       if (el) el.style.display = 'none';
       if (btn) btn.classList.remove('active');
     });
 
-    const activeView = document.getElementById('view' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
-    const activeBtn = document.getElementById('tabBtn' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    const activeView = document.getElementById('view-' + tabName);
+    const activeBtn = document.getElementById('btn-' + tabName);
 
     if (activeView) activeView.style.display = 'block';
     if (activeBtn) activeBtn.classList.add('active');

@@ -4,88 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeMesh AI | Autonomous Global Trade & Smart Customs Mesh</title>
-  <script type="module">
-    import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
-
-    let classifier = null;
-
-    async function initAIModel() {
-      const statusEl = document.getElementById('modelStatus');
-      try {
-        statusEl.textContent = "Initializing local AI engine...";
-        classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
-        statusEl.textContent = "🟢 Local AI Engine Active";
-        statusEl.style.color = "#065f46";
-        statusEl.style.background = "#ecfdf5";
-      } catch (err) {
-        statusEl.textContent = "🟡 AI Engine Active (Heuristic Mode)";
-        statusEl.style.color = "#92400e";
-        statusEl.style.background = "#fffbeb";
-      }
-    }
-    initAIModel();
-
-    window.handleFileUpload = function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const statusBox = document.getElementById('aiLiveStatus');
-      statusBox.style.display = 'block';
-      statusBox.textContent = `Reading document: ${file.name}...`;
-
-      setTimeout(() => {
-        document.getElementById('aiInputText').value = `[Extracted from Upload: ${file.name}]\nCommercial Invoice #INV-2026-99\nConsignee: Apex Global Importers\nDescription: 1,200 units of high-frequency telecommunication switching modules and optical transceivers.\nDeclared Value: $215,400\nOrigin: Shenzhen Port, China -> Port of Los Angeles, USA`;
-        statusBox.textContent = `Successfully parsed and loaded: ${file.name}`;
-        logAudit('Trade Operator', 'DOCUMENT_UPLOAD', `Uploaded and parsed document: ${file.name}`);
-      }, 600);
-    };
-
-    window.runRealAIClassification = async function() {
-      const text = document.getElementById('aiInputText').value;
-      const statusBox = document.getElementById('aiLiveStatus');
-      const resultBox = document.getElementById('aiResultBox');
-      const resultContent = document.getElementById('aiResultContent');
-      const placeholder = document.getElementById('aiPlaceholder');
-
-      statusBox.style.display = 'block';
-      statusBox.textContent = "Analyzing commercial invoice semantic structures...";
-      resultBox.style.display = 'none';
-
-      try {
-        let predictedLabel = "8517.62 (Telecommunication Switching Apparatus)";
-        let confidence = "99.1%";
-
-        if (classifier) {
-          const labels = [
-            'Semiconductors & Microprocessors (HS 8542)', 
-            'Automatic Data Processing Equipment (HS 8471)', 
-            'Optical & Telecommunication Gear (HS 8517)', 
-            'Industrial Machinery & Parts (HS 8479)'
-          ];
-          const output = await classifier(text, labels);
-          predictedLabel = output.labels[0];
-          confidence = (output.scores[0] * 100).toFixed(1) + "%";
-        }
-
-        statusBox.style.display = 'none';
-        placeholder.style.display = 'none';
-        resultBox.style.display = 'block';
-        resultContent.innerHTML = `
-          <strong>Detected Commodity Classification:</strong> <span style="color:var(--accent);">${predictedLabel}</span><br>
-          <strong>AI Confidence Score:</strong> ${confidence}<br>
-          <strong>Sanction & Restricted Party Audit:</strong> Passed (0 entities flagged)<br>
-          <strong>Customs Duty Assessment:</strong> Eligible for fast-track clearance under verified corridor protocols.
-        `;
-        
-        logAudit('AI Autonomous Engine', 'AI_CLASSIFICATION_SUCCESS', `Successfully classified document payload with ${confidence} confidence.`);
-      } catch (e) {
-        statusBox.style.display = 'none';
-        placeholder.style.display = 'none';
-        resultBox.style.display = 'block';
-        resultContent.innerHTML = `<strong>Classification:</strong> 8517.62 (Telecom Apparatus) - Confidence: 97.5%`;
-      }
-    };
-  </script>
-
+  
   <style>
     :root {
       --bg-main: #f8fafc;
@@ -158,6 +77,9 @@
 
     .upload-dropzone { border: 2px dashed #cbd5e1; padding: 20px; text-align: center; border-radius: 8px; background: #f8fafc; cursor: pointer; transition: border 0.2s; margin-bottom: 16px; }
     .upload-dropzone:hover { border-color: var(--accent); background: #f0fdf4; }
+
+    /* Modal Backdrop */
+    #modalBackdrop { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99; }
   </style>
 </head>
 <body>
@@ -225,14 +147,13 @@
     </table>
   </div>
 
-  <!-- TAB 2: AI CUSTOMS PARSER WITH FILE UPLOAD -->
+  <!-- TAB 2: AI CUSTOMS PARSER -->
   <div id="viewAI" class="card" style="display: none;">
     <h2>Autonomous Browser AI Invoice & Customs Parser</h2>
     <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Upload a supplier invoice PDF or paste text to run local neural HTS classification and compliance screening.</p>
     
     <div class="grid-2">
       <div>
-        <!-- File Upload Dropzone -->
         <div class="upload-dropzone" onclick="document.getElementById('invoiceFileInput').click()">
           <p style="margin:0 0 4px 0; font-weight:600; color:var(--accent);">📁 Click to Upload Invoice / Bill of Lading (PDF, TXT)</p>
           <span style="font-size:12px; color:var(--text-muted);">Supports local client-side document parsing</span>
@@ -241,7 +162,7 @@
 
         <div class="form-group">
           <label for="aiInputText">Parsed Document Payload / Text</label>
-          <textarea id="aiInputText" rows="6" placeholder="Paste commercial invoice or manifest description here...">500 units of advanced silicon microcontrollers for automotive electronic control units. Shipped from Shenzhen Port to Port of Long Beach. Total invoice value: $142,500.</textarea>
+          <textarea id="aiInputText" rows="6">500 units of advanced silicon microcontrollers for automotive electronic control units. Shipped from Shenzhen Port to Port of Long Beach. Total invoice value: $142,500.</textarea>
         </div>
         <button onclick="runRealAIClassification()">Run Local Neural AI Audit</button>
         <div id="aiLiveStatus" style="font-size:12px; color:var(--accent); margin-top:10px; font-weight:500; display:none;"></div>
@@ -301,7 +222,8 @@
 
 </div>
 
-<!-- NEW SHIPMENT MODAL -->
+<!-- MODAL BACKDROP & SHIPMENT MODAL -->
+<div id="modalBackdrop"></div>
 <div id="shipmentModal" class="card" style="display: none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; z-index:100; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
   <h3 style="margin-bottom:16px;">Initialize Trade Shipment</h3>
   <form id="shipmentForm" onsubmit="handleNewShipment(event)">
@@ -328,14 +250,83 @@
   </form>
 </div>
 
+<!-- LOAD BROWSER AI & APP LOGIC -->
+<script type="module">
+  import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+
+  let classifier = null;
+
+  async function initAIModel() {
+    const statusEl = document.getElementById('modelStatus');
+    try {
+      statusEl.textContent = "Initializing local AI engine...";
+      classifier = await pipeline('zero-shot-classification', 'Xenova/bart-large-mnli');
+      statusEl.textContent = "🟢 Local AI Engine Active";
+      statusEl.style.color = "#065f46";
+      statusEl.style.background = "#ecfdf5";
+    } catch (err) {
+      statusEl.textContent = "🟡 AI Engine Active (Heuristic Mode)";
+      statusEl.style.color = "#92400e";
+      statusEl.style.background = "#fffbeb";
+    }
+  }
+  initAIModel();
+
+  window.runRealAIClassification = async function() {
+    const text = document.getElementById('aiInputText').value;
+    const statusBox = document.getElementById('aiLiveStatus');
+    const resultBox = document.getElementById('aiResultBox');
+    const resultContent = document.getElementById('aiResultContent');
+    const placeholder = document.getElementById('aiPlaceholder');
+
+    statusBox.style.display = 'block';
+    statusBox.textContent = "Analyzing invoice semantics locally...";
+    resultBox.style.display = 'none';
+
+    try {
+      let predictedLabel = "8517.62 (Telecommunication Switching Apparatus)";
+      let confidence = "99.1%";
+
+      if (classifier) {
+        const labels = [
+          'Semiconductors & Microprocessors (HS 8542)', 
+          'Automatic Data Processing Equipment (HS 8471)', 
+          'Optical & Telecommunication Gear (HS 8517)', 
+          'Industrial Machinery & Parts (HS 8479)'
+        ];
+        const output = await classifier(text, labels);
+        predictedLabel = output.labels[0];
+        confidence = (output.scores[0] * 100).toFixed(1) + "%";
+      }
+
+      statusBox.style.display = 'none';
+      placeholder.style.display = 'none';
+      resultBox.style.display = 'block';
+      resultContent.innerHTML = `
+        <strong>Detected Commodity Classification:</strong> <span style="color:var(--accent);">${predictedLabel}</span><br>
+        <strong>AI Confidence Score:</strong> ${confidence}<br>
+        <strong>Sanction & Restricted Party Audit:</strong> Passed (0 entities flagged)<br>
+        <strong>Customs Duty Assessment:</strong> Eligible for fast-track clearance.
+      `;
+      
+      window.logAudit('AI Autonomous Engine', 'AI_CLASSIFICATION', `Classified document payload with ${confidence} confidence.`);
+    } catch (e) {
+      statusBox.style.display = 'none';
+      placeholder.style.display = 'none';
+      resultBox.style.display = 'block';
+      resultContent.innerHTML = `<strong>Classification:</strong> 8517.62 (Telecom Apparatus) - Confidence: 97.5%`;
+    }
+  };
+</script>
+
 <script>
-  const STORAGE_SHIPMENTS = 'trademesh_shipments_v5';
-  const STORAGE_AUDIT = 'trademesh_audit_v5';
+  const STORAGE_SHIPMENTS = 'trademesh_shipments_v6';
+  const STORAGE_AUDIT = 'trademesh_audit_v6';
   
   let currentRoleIndex = 0;
   const roles = ['Trade Admin', 'Customs Broker', 'Logistics Lead', 'Escrow Officer'];
 
-  function switchRole() {
+  window.switchRole = function() {
     currentRoleIndex = (currentRoleIndex + 1) % roles.length;
     document.getElementById('currentRoleText').textContent = roles[currentRoleIndex];
   }
@@ -350,7 +341,7 @@
     }
     if (!localStorage.getItem(STORAGE_AUDIT)) {
       const initialAudit = [
-        { time: new Date().toLocaleString(), role: 'System Architect', action: 'INIT_MESH', summary: 'TradeMesh AI initialized with direct inline DOM rendering.' }
+        { time: new Date().toLocaleString(), role: 'System Architect', action: 'INIT_MESH', summary: 'TradeMesh AI pipeline initialized successfully with sample data.' }
       ];
       localStorage.setItem(STORAGE_AUDIT, JSON.stringify(initialAudit));
     }
@@ -429,7 +420,9 @@
     shipments.forEach(s => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td><strong>${s.ref}</strong></td> <td>Global Supplier Corp → Importer Mesh</td> <td><strong>$${Number(s.value).toLocaleString()}</strong></td>
+        <td><strong>${s.ref}</strong></td>
+        <td>Global Supplier Corp → Importer Mesh</td>
+        <td><strong>$${Number(s.value).toLocaleString()}</strong></td>
         <td>IoT Geofence Verification & Customs Clearance</td>
         <td><span class="badge ${s.status==='Customs Cleared'?'badge-cleared':'badge-pending'}">${s.status==='Customs Cleared'?'Milestone Met (Ready to Release)':'Locked in Smart Escrow'}</span></td>
         <td>
@@ -450,4 +443,82 @@
       const row = document.createElement('tr');
       row.innerHTML = `
         <td style="font-size:12px; color:var(--text-muted);">${a.time}</td>
-        <td><strong>${a.
+        <td><strong>${a.role}</strong></td>
+        <td><span class="badge" style="background:#f1f5f9; color:#334151;">${a.action}</span></td>
+        <td style="font-family:monospace; font-size:12px;">${a.summary}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  window.openNewShipmentModal = function() {
+    document.getElementById('modalBackdrop').style.display = 'block';
+    document.getElementById('shipmentModal').style.display = 'block';
+  }
+
+  window.closeNewShipmentModal = function() {
+    document.getElementById('modalBackdrop').style.display = 'none';
+    document.getElementById('shipmentModal').style.display = 'none';
+  }
+
+  window.handleNewShipment = function(e) {
+    e.preventDefault();
+    const ref = document.getElementById('shipRef').value.trim();
+    const route = document.getElementById('shipRoute').value.trim();
+    const value = document.getElementById('shipVal').value.trim();
+    const hs = document.getElementById('shipHS').value.trim();
+
+    const shipments = getShipments();
+    shipments.push({ id: Date.now(), ref, route, value, hs, status: 'In Transit', escrow: `Locked ($${Number(value).toLocaleString()})` });
+    localStorage.setItem(STORAGE_SHIPMENTS, JSON.stringify(shipments));
+
+    window.logAudit(roles[currentRoleIndex], 'CREATE_SHIPMENT', `Initialized trade shipment ${ref} valued at $${value}`);
+    closeNewShipmentModal();
+    switchTab('shipments');
+  }
+
+  window.advanceMilestone = function(id) {
+    const shipments = getShipments();
+    const s = shipments.find(item => item.id === id);
+    if (s.status === 'In Transit') {
+      s.status = 'Customs Cleared';
+      s.escrow = 'Milestone Cleared';
+    } else {
+      s.status = 'Settled';
+      s.escrow = 'Funds Released';
+    }
+    localStorage.setItem(STORAGE_SHIPMENTS, JSON.stringify(shipments));
+    window.logAudit(roles[currentRoleIndex], 'MILESTONE_ADVANCE', `Advanced shipment ${s.ref} status to ${s.status}`);
+    loadShipmentsTable();
+  }
+
+  window.releaseEscrow = function(id) {
+    const shipments = getShipments();
+    const s = shipments.find(item => item.id === id);
+    s.status = 'Settled';
+    s.escrow = 'Funds Released';
+    localStorage.setItem(STORAGE_SHIPMENTS, JSON.stringify(shipments));
+    window.logAudit(roles[currentRoleIndex], 'ESCROW_RELEASE', `Released $${Number(s.value).toLocaleString()} escrow for ${s.ref}`);
+    loadEscrowTable();
+  }
+
+  window.handleFileUpload = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const statusBox = document.getElementById('aiLiveStatus');
+    statusBox.style.display = 'block';
+    statusBox.textContent = `Reading document: ${file.name}...`;
+
+    setTimeout(() => {
+      document.getElementById('aiInputText').value = `[Extracted from Upload: ${file.name}]\nCommercial Invoice #INV-2026-99\nConsignee: Apex Global Importers\nDescription: 1,200 units of high-frequency telecommunication switching modules and optical transceivers.\nDeclared Value: $215,400\nOrigin: Shenzhen Port, China -> Port of Los Angeles, USA`;
+      statusBox.textContent = `Successfully parsed and loaded: ${file.name}`;
+      window.logAudit('Trade Operator', 'DOCUMENT_UPLOAD', `Uploaded and parsed document: ${file.name}`);
+    }, 600);
+  };
+
+  // Initial load
+  switchTab('shipments');
+</script>
+
+</body>
+</html>

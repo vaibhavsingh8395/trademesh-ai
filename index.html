@@ -150,14 +150,14 @@
   <!-- TAB 2: AI CUSTOMS PARSER -->
   <div id="view-ai" class="card" style="display: none;">
     <h2>Autonomous Browser AI Invoice & Customs Parser</h2>
-    <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Upload a supplier invoice PDF or paste text to run local neural HTS classification and compliance screening.</p>
+    <p style="color:var(--text-muted); font-size:13px; margin-bottom:20px;">Upload a supplier invoice or paste text to run local neural HTS classification and compliance screening.</p>
     
     <div class="grid-2">
       <div>
         <div class="upload-dropzone" onclick="document.getElementById('invoiceFileInput').click()">
-          <p style="margin:0 0 4px 0; font-weight:600; color:var(--accent);">📁 Click to Upload Invoice / Bill of Lading (PDF, TXT)</p>
-          <span style="font-size:12px; color:var(--text-muted);">Select a file from your computer to parse</span>
-          <input type="file" id="invoiceFileInput" style="display:none;" accept=".pdf,.txt,.doc" onchange="handleFileUpload(event)">
+          <p style="margin:0 0 4px 0; font-weight:600; color:var(--accent);">📁 Click to Upload Invoice / Bill of Lading (TXT, JSON, or Text-based file)</p>
+          <span style="font-size:12px; color:var(--text-muted);">Reads file contents directly into payload</span>
+          <input type="file" id="invoiceFileInput" style="display:none;" accept=".txt,.json,.csv,.md" onchange="handleFileUpload(event)">
         </div>
 
         <div class="form-group">
@@ -320,8 +320,8 @@
 </script>
 
 <script>
-  const STORAGE_SHIPMENTS = 'trademesh_shipments_v9';
-  const STORAGE_AUDIT = 'trademesh_audit_v9';
+  const STORAGE_SHIPMENTS = 'trademesh_shipments_v10';
+  const STORAGE_AUDIT = 'trademesh_audit_v10';
   
   let currentRoleIndex = 0;
   const roles = ['Trade Admin', 'Customs Broker', 'Logistics Lead', 'Escrow Officer'];
@@ -498,27 +498,3 @@
     s.status = 'Settled';
     s.escrow = 'Funds Released';
     localStorage.setItem(STORAGE_SHIPMENTS, JSON.stringify(shipments));
-    window.logAudit(roles[currentRoleIndex], 'ESCROW_RELEASE', `Released $${Number(s.value).toLocaleString()} escrow for ${s.ref}`);
-    loadEscrowTable();
-  }
-
-  window.handleFileUpload = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const statusBox = document.getElementById('aiLiveStatus');
-    statusBox.style.display = 'block';
-    statusBox.textContent = `Reading document: ${file.name}...`;
-
-    setTimeout(() => {
-      document.getElementById('aiInputText').value = `[Extracted from Upload: ${file.name}]\nCommercial Invoice #INV-2026-99\nConsignee: Apex Global Importers\nDescription: 1,200 units of high-frequency telecommunication switching modules and optical transceivers.\nDeclared Value: $215,400\nOrigin: Shenzhen Port, China -> Port of Los Angeles, USA`;
-      statusBox.textContent = `Successfully parsed and loaded: ${file.name}`;
-      window.logAudit('Trade Operator', 'DOCUMENT_UPLOAD', `Uploaded and parsed document: ${file.name}`);
-    }, 600);
-  };
-
-  // Initial load
-  switchTab('shipments');
-</script>
-
-</body>
-</html>
